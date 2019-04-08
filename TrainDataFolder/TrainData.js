@@ -13,10 +13,13 @@ var database = firebase.database();
 
 var trainName= "";
 var destination="";
-//var firstTrain;
+var firstTrain = "00:01";
+var firstTrainConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
 var frequency;
 var arrival = " ";
 var minutesAway = " ";
+var storeTrainData = [];
+var superData=[];
 
 $("#submit").on("click", function(event) {
     event.preventDefault();
@@ -26,28 +29,44 @@ $("#submit").on("click", function(event) {
     frequency = $("#frequency").val().trim();
     arrival = $("#arrival").val().trim();
     minutesAway = $("#minutesAway").val().trim();
+    var diffTime = " ";
 
-    database.ref().push({
-        storeTrainName: trainName,
-        storeDestination: destination,
-        //storeFirstTrain: firstTrain,
-        storeFrequency: frequency,
-        storeArrival: arrival,
-        storeMinutesAway: minutesAway
-        //dateAdded: firebase.database.ServerValue.TIMESTAMP
-      });
+    storeTrainData = {
+      storeTrainName: trainName,
+      storeDestination: destination,
+      storeFirstTrain: firstTrain,
+      storeFrequency: frequency,
+      storeArrival: arrival,
+      storeMinutesAway: minutesAway
+      //dateAdded: firebase.database.ServerValue.TIMESTAMP
+    }
+    //Store the data for each storeTrainData array in superData array, so table
+    //can be populated.
+    superData.push(storeTrainData);
+    console.log("The minutes away is " + storeTrainData.storeMinutesAway);
+    for (var i=0; i <superData.length; i++)
+      {
+        console.log("The minutes away in superData is " + superData[i].storeMinutesAway);
+        diffTime = moment().diff(moment(firstTrainConverted), "minutes");
+        var remainderTime = diffTime % superData[i].storeFrequency;
+        superData[i].storeMinutesAway = superData[i].storeFrequency - remainderTime;
+        superData[i].storeArrival = moment().add(superData[i].storeMinutesAway, "minutes");
+      }
+
+    database.ref().push(storeTrainData);
+      console.log(database);
 
     var TrainDataRow = $("<tr>");
 })
 
 database.ref().on("child_added", function(snapshot){
-  console.log(snapshot.val())
-  console.log(snapshot.val().storeTrainName)
-  console.log(snapshot.val().storeDestination)
+  //console.log(snapshot.val())
+  //console.log(snapshot.val().storeTrainName)
+  //console.log(snapshot.val().storeDestination)
   //console.log(snapshot.val().storeFirstTrain)
-  console.log(snapshot.val().storeArrival)
-  console.log(snapshot.val().storeFrequency)
-  console.log(snapshot.val().storeMinutesAway)
+  //console.log(snapshot.val().storeArrival)
+  //console.log(snapshot.val().storeFrequency)
+  //console.log(snapshot.val().storeMinutesAway)
    //console.log(snapshot.val().dateAdded)
 
 

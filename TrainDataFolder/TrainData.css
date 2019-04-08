@@ -1,6 +1,7 @@
-#submit {
+#submit, #update{
     float: right;
 }
+
 
 #employeeForm{
     padding: 0 2% 2%;
