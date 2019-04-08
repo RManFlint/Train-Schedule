@@ -15,7 +15,8 @@ var trainName= "";
 var destination="";
 var firstTrain = "00:01";
 var firstTrainConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
-var frequency;
+console.log("Firsttrain time is " + firstTrainConverted);
+var frequency = " ";
 var arrival = " ";
 var minutesAway = " ";
 var storeTrainData = [];
@@ -27,9 +28,20 @@ $("#submit").on("click", function(event) {
     destination = $("#destination").val().trim();
     //firstTrain = $("#firstTrain").val().trim();
     frequency = $("#frequency").val().trim();
-    arrival = $("#arrival").val().trim();
-    minutesAway = $("#minutesAway").val().trim();
+    //arrival = $("#arrival").val().trim();
+    //minutesAway = $("#minutesAway").val().trim();
     var diffTime = " ";
+    var remainderTime = " ";
+
+    function arrival(){
+      diffTime = moment().diff(moment(firstTrainConverted), "minutes");
+      console.log("diffTime is " + diffTime);
+      remainderTime = diffTime % frequency;
+      minutesAway = frequency - remainderTime;
+      var nextTrain = moment().add(minutesAway, "minutes");
+      arrival = moment(nextTrain).format("hh:mm")
+    }
+    arrival();
 
     storeTrainData = {
       storeTrainName: trainName,
@@ -40,21 +52,19 @@ $("#submit").on("click", function(event) {
       storeMinutesAway: minutesAway
       //dateAdded: firebase.database.ServerValue.TIMESTAMP
     }
+    console.log("storeTrainData for arrival is " + storeTrainData[4]);
     //Store the data for each storeTrainData array in superData array, so table
     //can be populated.
     superData.push(storeTrainData);
-    console.log("The minutes away is " + storeTrainData.storeMinutesAway);
+    //console.log("The minutes away is " + storeTrainData.storeMinutesAway);
     for (var i=0; i <superData.length; i++)
       {
-        console.log("The minutes away in superData is " + superData[i].storeMinutesAway);
-        diffTime = moment().diff(moment(firstTrainConverted), "minutes");
-        var remainderTime = diffTime % superData[i].storeFrequency;
         superData[i].storeMinutesAway = superData[i].storeFrequency - remainderTime;
         superData[i].storeArrival = moment().add(superData[i].storeMinutesAway, "minutes");
       }
 
     database.ref().push(storeTrainData);
-      console.log(database);
+      console.log("After push, the database is " + database);
 
     var TrainDataRow = $("<tr>");
 })
