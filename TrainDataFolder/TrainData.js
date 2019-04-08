@@ -1,11 +1,11 @@
 // Initialize Firebase
 var config = {
-  apiKey: "AIzaSyBJw0FfHDoGlTZMyiBw8XPly6fu0Om8-k8",
-  authDomain: "revised-train-schedule.firebaseapp.com",
-  databaseURL: "https://revised-train-schedule.firebaseio.com",
-  projectId: "revised-train-schedule",
-  storageBucket: "revised-train-schedule.appspot.com",
-  messagingSenderId: "1071985640508"
+  apiKey: "AIzaSyDi96aiWEoP64Y9_G2nj5o0fEZSDFmZ3SA",
+  authDomain: "second-revision-train-schedule.firebaseapp.com",
+  databaseURL: "https://second-revision-train-schedule.firebaseio.com",
+  projectId: "second-revision-train-schedule",
+  storageBucket: "",
+  messagingSenderId: "702325528936"
 };
 firebase.initializeApp(config);
 
@@ -19,30 +19,31 @@ console.log("Firsttrain time is " + firstTrainConverted);
 var frequency = " ";
 var arrival = " ";
 var minutesAway = " ";
-var storeTrainData = [];
+var storeTrainData;
 var superData=[];
-
+//every time i add a new train i want to update minutesaway and arrival 
 $("#submit").on("click", function(event) {
     event.preventDefault();
     trainName = $("#trainName").val().trim();
     destination = $("#destination").val().trim();
-    //firstTrain = $("#firstTrain").val().trim();
     frequency = $("#frequency").val().trim();
-    //arrival = $("#arrival").val().trim();
-    //minutesAway = $("#minutesAway").val().trim();
     var diffTime = " ";
     var remainderTime = " ";
 
-    function arrival(){
+    function arrivalFunc(){
       diffTime = moment().diff(moment(firstTrainConverted), "minutes");
       console.log("diffTime is " + diffTime);
       remainderTime = diffTime % frequency;
+      console.log("remainderTime is " + remainderTime);
       minutesAway = frequency - remainderTime;
+      console.log("minutesAway is " + minutesAway);
       var nextTrain = moment().add(minutesAway, "minutes");
-      arrival = moment(nextTrain).format("hh:mm")
+      console.log("nextTrain is " + nextTrain);
+      arrival = moment(nextTrain).format("hh:mm");
+      console.log("value for arrival is " + arrival);
     }
-    arrival();
-
+    arrivalFunc();
+    
     storeTrainData = {
       storeTrainName: trainName,
       storeDestination: destination,
@@ -50,19 +51,19 @@ $("#submit").on("click", function(event) {
       storeFrequency: frequency,
       storeArrival: arrival,
       storeMinutesAway: minutesAway
-      //dateAdded: firebase.database.ServerValue.TIMESTAMP
     }
-    console.log("storeTrainData for arrival is " + storeTrainData[4]);
-    //Store the data for each storeTrainData array in superData array, so table
-    //can be populated.
+    console.log("storeTrainData for arrival is " + storeTrainData.storeTrainName);
     superData.push(storeTrainData);
-    //console.log("The minutes away is " + storeTrainData.storeMinutesAway);
+    console.log("superData[0] is " + superData[0].storeTrainName);
     for (var i=0; i <superData.length; i++)
-      {
-        superData[i].storeMinutesAway = superData[i].storeFrequency - remainderTime;
-        superData[i].storeArrival = moment().add(superData[i].storeMinutesAway, "minutes");
-      }
-
+    {
+      superData[i].storeMinutesAway = superData[i].storeFrequency - remainderTime;
+      console.log( superData[i].storeMinutesAway);
+      superData[i].storeArrival = moment().add(superData[i].storeMinutesAway, "minutes").format("hh:mm");
+      console.log(superData[i].storeArrival);
+    }
+    console.log(typeof arrival);
+    
     database.ref().push(storeTrainData);
       console.log("After push, the database is " + database);
 
@@ -70,22 +71,7 @@ $("#submit").on("click", function(event) {
 })
 
 database.ref().on("child_added", function(snapshot){
-  //console.log(snapshot.val())
-  //console.log(snapshot.val().storeTrainName)
-  //console.log(snapshot.val().storeDestination)
-  //console.log(snapshot.val().storeFirstTrain)
-  //console.log(snapshot.val().storeArrival)
-  //console.log(snapshot.val().storeFrequency)
-  //console.log(snapshot.val().storeMinutesAway)
-   //console.log(snapshot.val().dateAdded)
-
-
-  /*var convertedDate= moment.unix(snapshot.val().startDate);
-  var monthsAgo = moment().diff(convertedDate, "months");
-  var totalBilled = (monthsAgo*snapshot.val().monthlyRate);
-  console.log(convertedDate)
-  */
-  
+  console.log(snapshot.val());
   var empRow = $("<tr>")
   var trainNameCell = $("<td>").text(snapshot.val().storeTrainName)
   var destinationCell = $("<td>").text(snapshot.val().storeDestination)
