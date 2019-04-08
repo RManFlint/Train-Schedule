@@ -1,0 +1,26 @@
+#submit {
+    float: right;
+}
+
+#employeeForm{
+    padding: 0 2% 2%;
+    
+}
+
+.jumbotron{
+    color: white;
+    text-align: center;
+    background-color: #e6005c;
+    margin: 4% 5.5%;
+}
+#form-card{
+    margin-bottom: 30px;
+}
+.card-header{
+    background-color: #0099ff;
+    color: white;
+}
+
+.col-lg-12 {
+    padding:0px;
+}
