@@ -32,15 +32,10 @@ $("#submit").on("click", function(event) {
 
     function arrivalFunc(){
       diffTime = moment().diff(moment(firstTrainConverted), "minutes");
-      console.log("diffTime is " + diffTime);
       remainderTime = diffTime % frequency;
-      console.log("remainderTime is " + remainderTime);
       minutesAway = frequency - remainderTime;
-      console.log("minutesAway is " + minutesAway);
       var nextTrain = moment().add(minutesAway, "minutes");
-      console.log("nextTrain is " + nextTrain);
       arrival = moment(nextTrain).format("hh:mm");
-      console.log("value for arrival is " + arrival);
     }
     arrivalFunc();
     
@@ -52,35 +47,29 @@ $("#submit").on("click", function(event) {
       storeArrival: arrival,
       storeMinutesAway: minutesAway
     }
-    console.log("storeTrainData for arrival is " + storeTrainData.storeTrainName);
     superData.push(storeTrainData);
-    console.log("superData[0] is " + superData[0].storeTrainName);
     for (var i=0; i <superData.length; i++)
     {
       superData[i].storeMinutesAway = superData[i].storeFrequency - remainderTime;
-      console.log( superData[i].storeMinutesAway);
       superData[i].storeArrival = moment().add(superData[i].storeMinutesAway, "minutes").format("hh:mm");
-      console.log(superData[i].storeArrival);
     }
-    console.log(typeof arrival);
-    
     database.ref().push(storeTrainData);
-      console.log("After push, the database is " + database);
 
     var TrainDataRow = $("<tr>");
 })
 
 database.ref().on("child_added", function(snapshot){
   console.log(snapshot.val());
+  var diffTime2 = moment().diff(moment(firstTrainConverted), "minutes");
+  
   var empRow = $("<tr>")
   var trainNameCell = $("<td>").text(snapshot.val().storeTrainName)
   var destinationCell = $("<td>").text(snapshot.val().storeDestination)
-  //var firstTrainCell = $("<td>").text(snapshot.val().storeFirstTrain)
   var arrivalCell = $("<td>").text(snapshot.val().storeArrival)
   var frequencyCell = $("<td>").text(snapshot.val().storeFrequency)
   var storeMinutesAwayCell = $("<td>").text(snapshot.val().storeMinutesAway);
 
-  empRow.append(trainNameCell, destinationCell, arrivalCell, frequencyCell, storeMinutesAwayCell);
+  empRow.append(trainNameCell, destinationCell, frequencyCell, arrivalCell, storeMinutesAwayCell);
   $(".table tbody").append(empRow);
 });
 
