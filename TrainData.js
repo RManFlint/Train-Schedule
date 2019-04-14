@@ -69,4 +69,6 @@ database.ref().on("child_added", function(snapshot){
   $(".table tbody").append(empRow);
 });
 
-
+database.ref().on("value", function(snapshot){
+  console.log(snapshot.val());
+})
