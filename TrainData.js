@@ -1,5 +1,5 @@
 // Initialize Firebase
-var config = {
+$(document).ready (function() {var config = {
   apiKey: "AIzaSyDi96aiWEoP64Y9_G2nj5o0fEZSDFmZ3SA",
   authDomain: "second-revision-train-schedule.firebaseapp.com",
   databaseURL: "https://second-revision-train-schedule.firebaseio.com",
@@ -15,12 +15,8 @@ var trainName= "";
 var destination="";
 var firstTrain = "00:01";
 var firstTrainConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
-//console.log("Firsttrain time is " + firstTrainConverted);
-var frequency = " ";
-var arrival = " ";
 var minutesAway = " ";
-var storeTrainData;
-var superData=[];
+var superData = [];
 var diffTime = " ";
 var remainderTime = " ";
 
@@ -34,41 +30,51 @@ $("#submit").on("click", function(event) {
     trainData = {
       storeTrainName: trainName,
       storeDestination: destination,
-      storeFrequency: frequency,
-    };
+      storeFrequency: frequency
+    }
+    console.log("trainData is " + trainData);
+    superData.push(trainData); 
 
-    //superData.push(trainData);
-    
     database.ref().push(trainData);
+    
+
+    console.log("superData is " + superData);
+    var henry = superData.length-1;
+    console.log("superData.length is " + superData.length);
+    console.log("superData[henry] is " + superData[henry]);
+    console.log("superData[henry].storeTrainName is " + superData[henry].storeTrainName);
+    
+    //console.log("superData[1].storeTrainName is " + superData[1].storeTrainName);
+
 })
 
-database.ref().on("child_added", function(snapshot){
-  console.log(snapshot.val());
-     
+function populateTable(i){
   diffTime = moment().diff(moment(firstTrainConverted), "minutes");
-  remainderTime = diffTime % snapshot.val().storeFrequency;
-  console.log("snapshot.val().storeFrequency is " + snapshot.val().storeFrequency);
-  console.log("rmainderTime is " + remainderTime);
-  minutesAway = snapshot.val().storeFrequency - remainderTime;
-  console.log("MinutesAway is  " + minutesAway);
+  remainderTime = diffTime % superData[i].storeFrequency;
+  minutesAway = superData[i].storeFrequency - remainderTime;
   var nextTrain = moment().add(minutesAway, "minutes");
-  console.log("nextTrain is " + nextTrain);
   arrival = moment(nextTrain).format("hh:mm");
-  console.log("arrival is " + arrival);
 
   var empRow = $("<tr>");
-  var trainNameCell = $("<td>").text(snapshot.val().storeTrainName);
-  var destinationCell = $("<td>").text(snapshot.val().storeDestination);
+  var trainNameCell = $("<td>").text(superData[i].storeTrainName);
+  var destinationCell = $("<td>").text(superData[i].storeDestination);
   var arrivalCell = $("<td>").text(arrival);
   
-  console.log("next arrival is " + arrivalCell);
-  var frequencyCell = $("<td>").text(snapshot.val().storeFrequency)
+  var frequencyCell = $("<td>").text(superData[i].storeFrequency)
   var storeMinutesAwayCell = $("<td>").text(minutesAway);
 
   empRow.append(trainNameCell, destinationCell, frequencyCell, arrivalCell, storeMinutesAwayCell);
   $(".table tbody").append(empRow);
-});
+}
 
 database.ref().on("value", function(snapshot){
-  console.log(snapshot.val());
+  //console.log(snapshot.val());
+  superData = Object.values(snapshot.val());  
+  console.log(superData[3]);
+  $(".table tbody").html("");
+  for (i = 0; i < superData.length; i++){
+    populateTable(i);    
+  }
+
+})
 })
