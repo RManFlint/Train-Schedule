@@ -1,5 +1,5 @@
 // Initialize Firebase
-var config = {
+$(document).ready (function() {var config = {
   apiKey: "AIzaSyDi96aiWEoP64Y9_G2nj5o0fEZSDFmZ3SA",
   authDomain: "second-revision-train-schedule.firebaseapp.com",
   databaseURL: "https://second-revision-train-schedule.firebaseio.com",
@@ -15,73 +15,64 @@ var trainName= "";
 var destination="";
 var firstTrain = "00:01";
 var firstTrainConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
-console.log("Firsttrain time is " + firstTrainConverted);
-var frequency = " ";
-var arrival = " ";
 var minutesAway = " ";
-var storeTrainData;
-var superData=[];
+var superData = [];
+var diffTime = " ";
+var remainderTime = " ";
+
 //every time i add a new train i want to update minutesaway and arrival 
 $("#submit").on("click", function(event) {
     event.preventDefault();
     trainName = $("#trainName").val().trim();
     destination = $("#destination").val().trim();
     frequency = $("#frequency").val().trim();
-    var diffTime = " ";
-    var remainderTime = " ";
 
-    function arrivalFunc(){
-      diffTime = moment().diff(moment(firstTrainConverted), "minutes");
-      console.log("diffTime is " + diffTime);
-      remainderTime = diffTime % frequency;
-      console.log("remainderTime is " + remainderTime);
-      minutesAway = frequency - remainderTime;
-      console.log("minutesAway is " + minutesAway);
-      var nextTrain = moment().add(minutesAway, "minutes");
-      console.log("nextTrain is " + nextTrain);
-      arrival = moment(nextTrain).format("hh:mm");
-      console.log("value for arrival is " + arrival);
-    }
-    arrivalFunc();
-    
-    storeTrainData = {
+    trainData = {
       storeTrainName: trainName,
       storeDestination: destination,
-      storeFirstTrain: firstTrain,
-      storeFrequency: frequency,
-      storeArrival: arrival,
-      storeMinutesAway: minutesAway
+      storeFrequency: frequency
     }
-    console.log("storeTrainData for arrival is " + storeTrainData.storeTrainName);
-    superData.push(storeTrainData);
-    console.log("superData[0] is " + superData[0].storeTrainName);
-    for (var i=0; i <superData.length; i++)
-    {
-      superData[i].storeMinutesAway = superData[i].storeFrequency - remainderTime;
-      console.log( superData[i].storeMinutesAway);
-      superData[i].storeArrival = moment().add(superData[i].storeMinutesAway, "minutes").format("hh:mm");
-      console.log(superData[i].storeArrival);
-    }
-    console.log(typeof arrival);
-    
-    database.ref().push(storeTrainData);
-      console.log("After push, the database is " + database);
+    console.log("trainData is " + trainData);
+    superData.push(trainData); 
 
-    var TrainDataRow = $("<tr>");
+    database.ref().push(trainData);
+    
+
+    console.log("superData is " + superData);
+    var henry = superData.length-1;
+    console.log("superData.length is " + superData.length);
+    console.log("superData[henry] is " + superData[henry]);
+    console.log("superData[henry].storeTrainName is " + superData[henry].storeTrainName);
+    
+    //console.log("superData[1].storeTrainName is " + superData[1].storeTrainName);
+
 })
 
 database.ref().on("child_added", function(snapshot){
   console.log(snapshot.val());
-  var empRow = $("<tr>")
-  var trainNameCell = $("<td>").text(snapshot.val().storeTrainName)
-  var destinationCell = $("<td>").text(snapshot.val().storeDestination)
-  //var firstTrainCell = $("<td>").text(snapshot.val().storeFirstTrain)
-  var arrivalCell = $("<td>").text(snapshot.val().storeArrival)
-  var frequencyCell = $("<td>").text(snapshot.val().storeFrequency)
-  var storeMinutesAwayCell = $("<td>").text(snapshot.val().storeMinutesAway);
+  $(".table tbody").html("");
+  for (var i = 0; i< superData.length; i++){
 
-  empRow.append(trainNameCell, destinationCell, arrivalCell, frequencyCell, storeMinutesAwayCell);
+  diffTime = moment().diff(moment(firstTrainConverted), "minutes");
+  remainderTime = diffTime % superData[i].storeFrequency;
+  minutesAway = superData[i].storeFrequency - remainderTime;
+  var nextTrain = moment().add(minutesAway, "minutes");
+  arrival = moment(nextTrain).format("hh:mm");
+
+  var empRow = $("<tr>");
+  var trainNameCell = $("<td>").text(superData[i].storeTrainName);
+  var destinationCell = $("<td>").text(superData[i].storeDestination);
+  var arrivalCell = $("<td>").text(arrival);
+  
+  var frequencyCell = $("<td>").text(superData[i].storeFrequency)
+  var storeMinutesAwayCell = $("<td>").text(minutesAway);
+
+  empRow.append(trainNameCell, destinationCell, frequencyCell, arrivalCell, storeMinutesAwayCell);
   $(".table tbody").append(empRow);
+  }
 });
 
-
+database.ref().on("value", function(snapshot){
+  console.log(snapshot.val());
+})
+})
